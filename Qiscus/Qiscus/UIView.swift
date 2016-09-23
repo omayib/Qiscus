@@ -46,7 +46,7 @@ extension UIView {
         layer.renderInContext(UIGraphicsGetCurrentContext()!)
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        backgroundColor = UIColor(patternImage: image)
+        backgroundColor = UIColor(patternImage: image!)
     }
 
 }

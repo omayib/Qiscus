@@ -334,7 +334,7 @@ public class QiscusFile: Object {
             let newImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
             
-            return newImage
+            return newImage!
         }else{
             let newImage = UIImage.resizeImage(inputImage, toFillOnImage: fillImageSize!)
             

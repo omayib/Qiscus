@@ -14,7 +14,9 @@ import Photos
 import QToasterSwift
 import ImageViewer
 
-public class QiscusChatVC: UIViewController, ChatInputTextDelegate, QCommentDelegate, UIImagePickerControllerDelegate, UITableViewDelegate, UITableViewDataSource,UINavigationControllerDelegate, UIDocumentPickerDelegate{
+extension UIImageView: DisplaceableView {}
+
+public class QiscusChatVC: UIViewController, ChatInputTextDelegate, QCommentDelegate, UIImagePickerControllerDelegate, UITableViewDelegate, UITableViewDataSource,UINavigationControllerDelegate, UIDocumentPickerDelegate, GalleryDisplacedViewsDatasource, GalleryItemsDatasource {
     
     static let sharedInstance = QiscusChatVC()
     
@@ -67,29 +69,30 @@ public class QiscusChatVC: UIViewController, ChatInputTextDelegate, QCommentDele
     var selectedImage:UIImage = UIImage()
     var imagePreview:GalleryViewController?
     var loadWithUser:Bool = false
+    var imageViews: [UIImageView] = []
     
-    class QImageProvider: ImageProvider {
-        var images:[UIImage] = [UIImage]()
-        
-        var imageCount: Int {
-            return images.count
-        }
-        
-        func provideImage(completion: UIImage? -> Void) {
-            //completion(UIImage(named: "image_big"))
-        }
-        
-        func provideImage(atIndex index: Int, completion: UIImage? -> Void) {
-            completion(images[index])
-            QiscusChatVC.sharedInstance.selectedImage = images[index]
-            print("ganti image index: \(index)")
-        }
-    }
+//    class QImageProvider: ImageProvider {
+//        var images:[UIImage] = [UIImage]()
+//        
+//        var imageCount: Int {
+//            return images.count
+//        }
+//        
+//        func provideImage(completion: UIImage? -> Void) {
+//            //completion(UIImage(named: "image_big"))
+//        }
+//        
+//        func provideImage(atIndex index: Int, completion: UIImage? -> Void) {
+//            completion(images[index])
+//            QiscusChatVC.sharedInstance.selectedImage = images[index]
+//            print("ganti image index: \(index)")
+//        }
+//    }
     
     //MARK: - external action
     public var unlockAction:(()->Void) = {}
     public var cellDelegate:QiscusChatCellDelegate?
-    var imageProvider = QImageProvider()
+//    var imageProvider = QImageProvider()
     
     
     var bundle:NSBundle {
@@ -866,7 +869,7 @@ public class QiscusChatVC: UIViewController, ChatInputTextDelegate, QCommentDele
         }else{
             print("mediaIndex: \(sender.mediaIndex)")
             var currentIndex = 0
-            self.imageProvider.images = [UIImage]()
+            self.imageViews = []
             var i = 0
             for groupComment in self.comment{
                 for singleComment in groupComment {
@@ -886,7 +889,8 @@ public class QiscusChatVC: UIViewController, ChatInputTextDelegate, QCommentDele
                                         if file?.fileLocalPath == sender.fileLocalPath{
                                             self.selectedImage = image
                                         }
-                                        self.imageProvider.images.append(image)
+                                        let imageView = UIImageView(image: image)
+                                        self.imageViews.append(imageView)
                                     }
                                 }
                             }
@@ -915,8 +919,12 @@ public class QiscusChatVC: UIViewController, ChatInputTextDelegate, QCommentDele
 //            saveButton.setImage(Qiscus.image(named: "ic_download-1")?.imageWithRenderingMode(.AlwaysTemplate), forState: .Normal)
 //            saveButton.tintColor = UIColor.whiteColor()
 //            saveButton.addTarget(self, action: #selector(QiscusChatVC.saveImageToGalery), forControlEvents: .TouchUpInside)
-            
-            self.imagePreview = GalleryViewController(imageProvider: imageProvider, displacedView: sender.view!, imageCount: self.imageProvider.imageCount, startIndex: currentIndex, configuration: [GalleryConfigurationItem.SeeAllButton(seeAllButton),GalleryConfigurationItem.CloseButton(closeButton)])
+            let galleryConf = [
+                GalleryConfigurationItem.ThumbnailsButtonMode(ButtonMode.Custom(seeAllButton)),
+                GalleryConfigurationItem.CloseButtonMode(ButtonMode.Custom(closeButton))
+            ]
+            self.imagePreview = GalleryViewController(startIndex: currentIndex, itemsDatasource: self, configuration: galleryConf)
+//            self.imagePreview = GalleryViewController(imageProvider: imageProvider, displacedView: sender.view!, imageCount: self.imageProvider.imageCount, startIndex: currentIndex, configuration: [GalleryConfigurationItem.SeeAllButton(seeAllButton),GalleryConfigurationItem.CloseButton(closeButton)])
             
 //            let headerView = UIView(frame: CGRectMake(0, 0, QiscusHelper.screenWidth(),30))
 //            headerView.addSubview(saveButton)
@@ -998,6 +1006,27 @@ public class QiscusChatVC: UIViewController, ChatInputTextDelegate, QCommentDele
             self.showNoConnectionToast()
         }
     }
+    
+    // MARK: - GalleryItemDataSource
+    
+    public func itemCount() -> Int {
+        
+        return imageViews.count
+    }
+    
+    public func provideDisplacementItem(atIndex index: Int) -> DisplaceableView? {
+        
+        return imageViews[index] ?? nil
+    }
+    
+    public func provideGalleryItem(index: Int) -> GalleryItem {
+        
+        let image = imageViews[index].image ?? UIImage(named: "ic_img")!
+        
+        return GalleryItem.Image { $0(image) }
+    }
+    
+    // UIDocumentPickerDelegate
     public func documentPicker(controller: UIDocumentPickerViewController, didPickDocumentAtURL url: NSURL) {
         SJProgressHUD.showWaiting("Processing File", autoRemove: false)
         let coordinator = NSFileCoordinator()
