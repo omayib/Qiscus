@@ -23,15 +23,15 @@ s.resource_bundles = {
 
 s.platform      = :ios, "8.3"
 
-s.dependency 'Alamofire', '~> 3.0'
-s.dependency 'AlamofireImage'
-s.dependency 'PusherSwift', '2.0.1'
-s.dependency 'RealmSwift'
-s.dependency 'SwiftyJSON'
-s.dependency 'ReachabilitySwift', '2.3.3'
+s.dependency 'Alamofire', '3.5.0'
+s.dependency 'AlamofireImage', '2.5.0'
+s.dependency 'PusherSwift', git: 'https://github.com/pusher/pusher-websocket-swift.git', branch: 'push-notifications-swift-2.3'
+s.dependency 'RealmSwift', '1.1.0'
+s.dependency 'SwiftyJSON', :git => 'https://github.com/SwiftyJSON/SwiftyJSON.git', :branch => 'swift2'
+s.dependency 'ReachabilitySwift', '2.4'
 s.dependency 'QToasterSwift'
-s.dependency 'QAsyncImageView'
+s.dependency 'QAsyncImageView', :git => 'https://github.com/hanief/QAsyncImageView.git', :branch => 'swift2.3'
 s.dependency 'SJProgressHUD'
-s.dependency 'ImageViewer'
+s.dependency 'ImageViewer', :git => 'https://github.com/hanief/ImageViewer.git'
 
 end
