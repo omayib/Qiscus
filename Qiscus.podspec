@@ -25,7 +25,7 @@ s.platform      = :ios, "8.3"
 
 s.dependency 'Alamofire', '3.5.0'
 s.dependency 'AlamofireImage', '2.5.0'
-s.dependency 'PusherSwift', git: 'https://github.com/pusher/pusher-websocket-swift.git', branch: 'push-notifications-swift-2.3'
+s.dependency 'PusherSwift', :git => 'https://github.com/pusher/pusher-websocket-swift.git', :branch => 'push-notifications-swift-2.3'
 s.dependency 'RealmSwift', '1.1.0'
 s.dependency 'SwiftyJSON', :git => 'https://github.com/SwiftyJSON/SwiftyJSON.git', :branch => 'swift2'
 s.dependency 'ReachabilitySwift', '2.4'
