@@ -368,7 +368,7 @@ public class QiscusCommentClient: NSObject {
         
     }
     
-    public downloadFile() {
+    public func downloadFile() {
     
     }
     
