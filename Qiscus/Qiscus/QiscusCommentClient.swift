@@ -364,6 +364,14 @@ public class QiscusCommentClient: NSObject {
         )
     }
     
+    public func uploadFile() {
+        
+    }
+    
+    public downloadFile() {
+    
+    }
+    
     // MARK: - Communicate with Server
     public func syncMessage(topicId: Int, triggerDelegate:Bool = false) {
         dispatch_async(dispatch_get_main_queue()) {

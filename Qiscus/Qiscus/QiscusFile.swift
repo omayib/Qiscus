@@ -17,6 +17,7 @@ public enum QFileType:Int {
     case Media
     case Document
     case Video
+    case Audio
     case Others
 }
 
@@ -64,6 +65,8 @@ public class QiscusFile: Object {
                 type = QFileType.Document
             }else if(isVideoFile()){
                 type = QFileType.Video
+            } else if isAudioFile() {
+                type = QFileType.Audio
             }
             return type
         }
@@ -295,6 +298,20 @@ public class QiscusFile: Object {
         
         if(ext == "jpg" || ext == "jpg_" || ext == "png" || ext == "png_" || ext == "gif" || ext == "gif_"){
             check = true
+        }
+        
+        return check
+    }
+    
+    private func isAudioFile() -> Bool {
+        var check:Bool = false
+        let ext = self.getExtension()
+        let audioExtension = ["m4a", "aac", "mp3"]
+        
+        for audioExt in audioExtension {
+            if ext == audioExt || ext == audioExt+"_" {
+                return true
+            }
         }
         
         return check
