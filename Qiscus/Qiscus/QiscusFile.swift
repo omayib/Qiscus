@@ -305,13 +305,10 @@ public class QiscusFile: Object {
     
     private func isAudioFile() -> Bool {
         var check:Bool = false
-        let ext = self.getExtension()
-        let audioExtension = ["m4a", "aac", "mp3"]
+        let ext = self.getExtension().lowercaseString
         
-        for audioExt in audioExtension {
-            if ext == audioExt || ext == audioExt+"_" {
-                return true
-            }
+        if(ext == "m4a" || ext == "m4a_" || ext == "aac" || ext == "aac_" || ext == "mp3" || ext == "mp3_"){
+            check = true
         }
         
         return check
