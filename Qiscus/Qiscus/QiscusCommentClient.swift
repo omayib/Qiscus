@@ -364,12 +364,152 @@ public class QiscusCommentClient: NSObject {
         )
     }
     
-    public func uploadFile() {
+    func downloadAudio(fromComment comment: QiscusComment) {
+        let file = QiscusFile.getCommentFile(comment.commentFileId)!
+        let manager = Alamofire.Manager.sharedInstance
         
+        file.updateIsDownloading(true)
+        
+        manager.request(.GET, (file.fileURL as String), parameters: nil, encoding: ParameterEncoding.URL, headers: QiscusConfig.sharedInstance.requestHeader)
+            .progress{ bytesRead, totalBytesRead, totalBytesExpectedToRead in
+                let progress = CGFloat(CGFloat(totalBytesRead) / CGFloat(totalBytesExpectedToRead))
+                
+                dispatch_async(dispatch_get_main_queue()) {
+                    print("Download progress: \(progress)")
+                    file.updateDownloadProgress(progress)
+                    self.commentDelegate?.downloadingMedia(comment)
+                }
+            }
+            .responseData { response in
+                if let fileData = response.data {
+                    let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
+                    let path = "\(documentsPath)/\(file.fileName as String)"
+                    
+                    fileData.writeToFile(path, atomically: true)
+                    
+                    dispatch_async(dispatch_get_main_queue()){
+                        file.updateDownloadProgress(1.0)
+                        file.updateIsDownloading(false)
+                        file.updateLocalPath(path)
+                        self.commentDelegate?.didDownloadMedia(comment)
+                    }
+                }
+        }
     }
     
-    public func downloadFile() {
-    
+    func uploadAudio(topicId: Int, fileName: String, filePath: NSURL? = nil, fileData:NSData? = nil, roomId:Int? = nil) {
+        var fileExtension = "m4a"
+        
+        if let fileNameLastPart = fileName.characters.split(".").last {
+            fileExtension = String(fileNameLastPart).lowercaseString
+        } else if let urlPathExtension = filePath?.pathExtension {
+            fileExtension = urlPathExtension
+        }
+        
+        let mimeType = QiscusFileHelper.mimeTypes[fileExtension] ?? "audio/x-m4a"
+        
+        var fileContent: NSData?
+        if filePath != nil {
+            fileContent = NSData(contentsOfURL: filePath!)
+        }
+        
+        let comment = QiscusComment.newCommentWithMessage(message: "", inTopicId: topicId)
+        
+        //        let imageThumbName = "thumb_\(comment.commentUniqueId).\(imageExt)"
+        //        let fileName = "\(comment.commentUniqueId).\(fileExtension)"
+        //
+        let commentFile = QiscusFile()
+        //        if image != nil {
+        //            commentFile.fileLocalPath = QiscusFile.saveFile(imageData, fileName: fileName)
+        //            commentFile.fileThumbPath = QiscusFile.saveFile(thumbData, fileName: imageThumbName)
+        //        }else{
+        //            commentFile.fileLocalPath = imageName
+        //        }
+        commentFile.fileTopicId = topicId
+        
+        commentFile.isUploading = true
+        commentFile.uploaded = false
+        commentFile.saveCommentFile()
+        
+        comment.updateCommentText("[file]\(fileName) [/file]")
+        comment.updateCommentFileId(commentFile.fileId)
+        
+        commentFile.updateIsUploading(true)
+        commentFile.updateUploadProgress(0.0)
+        
+        self.commentDelegate?.gotNewComment([comment])
+        
+        let headers = QiscusConfig.sharedInstance.requestHeader
+        
+        Alamofire.upload(
+            .POST,
+            qiscus.config.UPLOAD_URL,
+            headers: headers,
+            multipartFormData: { multipartFormData in
+                multipartFormData.appendBodyPart(data: fileContent!, name: "raw_file", fileName: "\(fileName)", mimeType: "\(mimeType)")
+            },
+            encodingCompletion: { encodingResult in
+                switch encodingResult {
+                case .Success(let upload, _, _):
+                    upload.responseJSON { response in
+                        if let JSON = response.result.value {
+                            print(JSON)
+                            let responseDictionary = JSON as! NSDictionary
+                            print(responseDictionary)
+                            if let data:NSDictionary = responseDictionary.valueForKey("data") as? NSDictionary{
+                                if let file:NSDictionary = data.valueForKey("file") as? NSDictionary{
+                                    if let url:String = file.valueForKey("url") as? String{
+                                        
+                                        dispatch_async(dispatch_get_main_queue(),{
+                                            comment.updateCommentStatus(QiscusCommentStatus.Sending)
+                                            comment.updateCommentText("[file]\(url) [/file]")
+                                            print("upload success")
+                                            
+                                            commentFile.updateURL(url)
+                                            commentFile.updateIsUploading(false)
+                                            commentFile.updateUploadProgress(1.0)
+                                            
+                                            self.commentDelegate?.didUploadFile(comment)
+                                            self.postComment(comment, file: commentFile, roomId: roomId)
+                                        })
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    upload.progress({ (bytesWritten, totalBytesWritten, totalBytesExpectedToWrite) in //
+                        dispatch_async(dispatch_get_main_queue(),{
+                            let progress = CGFloat(CGFloat(totalBytesWritten) / CGFloat(totalBytesExpectedToWrite))
+                            print("upload progress: ",progress)
+                            
+                            commentFile.updateIsUploading(true)
+                            commentFile.updateUploadProgress(progress)
+                            
+                            self.commentDelegate?.uploadingFile(comment)
+                        })
+                    })
+                    upload.response(completionHandler: { (request, httpResponse, data, error) in
+                        if error != nil || httpResponse?.statusCode >= 400 {
+                            comment.updateCommentStatus(QiscusCommentStatus.Failed)
+                            commentFile.updateIsUploading(false)
+                            commentFile.updateUploadProgress(0)
+                            
+                            self.commentDelegate?.didFailedUploadFile(comment)
+                        }else{
+                            print("http response upload: \(httpResponse)\n")
+                        }
+                    })
+                    break
+                case .Failure(_):
+                    print("encoding error:")
+                    comment.updateCommentStatus(QiscusCommentStatus.Failed)
+                    commentFile.updateIsUploading(false)
+                    commentFile.updateUploadProgress(0)
+                    self.commentDelegate?.didFailedUploadFile(comment)
+                    break
+                }
+            }
+        )
     }
     
     // MARK: - Communicate with Server
