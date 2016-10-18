@@ -59,15 +59,16 @@ public class QiscusFile: Object {
     public var fileType:QFileType{
         get {
             var type:QFileType = QFileType.Others
-            if(isMediaFile()){
+            if (isMediaFile()) {
                 type = QFileType.Media
-            }else if(isPdfFile()){
+            }else if (isPdfFile()) {
                 type = QFileType.Document
-            }else if(isVideoFile()){
+            }else if (isVideoFile()) {
                 type = QFileType.Video
-            } else if isAudioFile() {
+            } else if (isAudioFile()) {
                 type = QFileType.Audio
             }
+            
             return type
         }
     }
@@ -305,7 +306,7 @@ public class QiscusFile: Object {
     
     private func isAudioFile() -> Bool {
         var check:Bool = false
-        let ext = self.getExtension().lowercaseString
+        let ext = self.getExtension()
         
         if(ext == "m4a" || ext == "m4a_" || ext == "aac" || ext == "aac_" || ext == "mp3" || ext == "mp3_"){
             check = true
