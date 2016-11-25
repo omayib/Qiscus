@@ -59,13 +59,13 @@ public class QiscusFile: Object {
     public var fileType:QFileType{
         get {
             var type:QFileType = QFileType.Others
-            if (isMediaFile()) {
+            if isMediaFile() {
                 type = QFileType.Media
-            }else if (isPdfFile()) {
+            } else if isPdfFile() {
                 type = QFileType.Document
-            }else if (isVideoFile()) {
+            } else if isVideoFile() {
                 type = QFileType.Video
-            } else if (isAudioFile()) {
+            } else if isAudioFile() {
                 type = QFileType.Audio
             }
             
@@ -259,19 +259,24 @@ public class QiscusFile: Object {
         return ext
     }
     private func getFileName() ->String{
-        var mediaURL:NSURL = NSURL()
-        var fileName:String? = ""
-        if(self.fileLocalPath == ""){
-            mediaURL = NSURL(string: self.fileURL as String)!
-            fileName = mediaURL.lastPathComponent?.stringByReplacingOccurrencesOfString("%20", withString: "_")
-        }else if(self.fileLocalPath as String).rangeOfString("/") == nil{
-            fileName = self.fileLocalPath as String
-        }else{
-            mediaURL = NSURL(string: self.fileLocalPath as String)!
-            fileName = mediaURL.lastPathComponent?.stringByReplacingOccurrencesOfString("%20", withString: "_")
+        var fileName = ""
+        
+        if self.fileLocalPath.characters.count > 0 {
+            if let mediaURL = NSURL(string: self.fileURL) {
+                if let lastPath = mediaURL.lastPathComponent?.stringByRemovingPercentEncoding {
+                    fileName = lastPath
+                }
+            }
+        } else if self.fileLocalPath.rangeOfString("/") == nil {
+            fileName = self.fileLocalPath
+        } else {
+            if let lastPathSequence = self.fileLocalPath.characters.split("/").last {
+                let lastPath = String(lastPathSequence)
+                fileName = lastPath.stringByReplacingOccurrencesOfString(" ", withString: "_")
+            }
         }
         
-        return fileName!
+        return fileName
     }
     private func isPdfFile() -> Bool{
         var check:Bool = false
