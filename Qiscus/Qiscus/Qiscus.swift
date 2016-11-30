@@ -8,22 +8,22 @@
 
 import UIKit
 
-public class Qiscus: NSObject {
-    public static let sharedInstance = Qiscus()
+open class Qiscus: NSObject {
+    open static let sharedInstance = Qiscus()
     
-    public var config = QiscusConfig.sharedInstance
-    public var commentService = QiscusCommentClient.sharedInstance
+    open var config = QiscusConfig.sharedInstance
+    open var commentService = QiscusCommentClient.sharedInstance
     
-    public class var commentService:QiscusCommentClient{
+    open class var commentService:QiscusCommentClient{
         get{
             return QiscusCommentClient.sharedInstance
         }
     }
     
-    private override init() {}
+    fileprivate override init() {}
     
     
-    public class func setConfiguration(baseURL:String, uploadURL: String, userEmail:String, userToken:String, commentPerLoad:Int! = 10, headers: [String:String]? = nil){
+    open class func setConfiguration(_ baseURL:String, uploadURL: String, userEmail:String, userToken:String, commentPerLoad:Int! = 10, headers: [String:String]? = nil){
         let config = QiscusConfig.sharedInstance
         
         config.BASE_URL = baseURL

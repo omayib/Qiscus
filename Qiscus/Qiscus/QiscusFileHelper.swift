@@ -8,8 +8,8 @@
 
 import UIKit
 
-public class QiscusFileHelper {
-    public static let mimeTypes = [
+open class QiscusFileHelper {
+    open static let mimeTypes = [
         "html": "text/html",
         "htm": "text/html",
         "shtml": "text/html",

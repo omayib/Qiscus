@@ -9,9 +9,9 @@
 import UIKit
 import SwiftyJSON
 
-public class QiscusPusherClient: NSObject {
+open class QiscusPusherClient: NSObject {
     
-    public class func processDataFromPusher(json json: JSON){
+    open class func processDataFromPusher(json: JSON){
         if json != nil {
             
             let notifTopicId = QiscusComment.getCommentTopicIdFromJSON(json)

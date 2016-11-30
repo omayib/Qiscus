@@ -8,22 +8,22 @@
 
 import UIKit
 
-public class QiscusIndexPathData: NSObject{
-    public var row = 0
-    public var section = 0
-    public var newGroup:Bool = false
+open class QiscusIndexPathData: NSObject{
+    open var row = 0
+    open var section = 0
+    open var newGroup:Bool = false
 }
-public class QiscusSearchIndexPathData{
-    public var row = 0
-    public var section = 0
-    public var found:Bool = false
+open class QiscusSearchIndexPathData{
+    open var row = 0
+    open var section = 0
+    open var found:Bool = false
 }
-public class QCommentIndexPath{
-    public var row = 0
-    public var section = 0
+open class QCommentIndexPath{
+    open var row = 0
+    open var section = 0
 }
-public class QiscusHelper: NSObject {
-    public class func properIndexPathOf(comment comment: QiscusComment, inGroupedComment:[[QiscusComment]])-> QiscusIndexPathData{
+open class QiscusHelper: NSObject {
+    open class func properIndexPathOf(comment: QiscusComment, inGroupedComment:[[QiscusComment]])-> QiscusIndexPathData{
         
         var i = 0
         let dataIndexPath = QiscusIndexPathData()
@@ -152,7 +152,7 @@ public class QiscusHelper: NSObject {
         return dataIndexPath
     }
     
-    public class func getIndexPathOfComment(comment comment: QiscusComment, inGroupedComment:[[QiscusComment]])-> QiscusSearchIndexPathData{
+    open class func getIndexPathOfComment(comment: QiscusComment, inGroupedComment:[[QiscusComment]])-> QiscusSearchIndexPathData{
         
         var i = 0
         let dataIndexPath = QiscusSearchIndexPathData()
@@ -177,27 +177,27 @@ public class QiscusHelper: NSObject {
         return dataIndexPath
     }
     
-    public class func getLastCommentInGroup(groupComment groupComment:[[QiscusComment]])->QiscusComment{
+    open class func getLastCommentInGroup(groupComment:[[QiscusComment]])->QiscusComment{
         var lastGroup = groupComment[groupComment.count - 1]
         let lastComment = lastGroup[lastGroup.count - 1]
         
         return lastComment
     }
-    public class func getLastCommentindexPathInGroup(groupComment groupComment:[[QiscusComment]])->QCommentIndexPath{
+    open class func getLastCommentindexPathInGroup(groupComment:[[QiscusComment]])->QCommentIndexPath{
         let indexPath = QCommentIndexPath()
         indexPath.section = groupComment.count - 1
         indexPath.row = groupComment[indexPath.section].count - 1
         
         return indexPath
     }
-    public class func getNextIndexPathIn(groupComment groupComment:[[QiscusComment]])->QCommentIndexPath{
+    open class func getNextIndexPathIn(groupComment:[[QiscusComment]])->QCommentIndexPath{
         var indexPath = QCommentIndexPath()
         
-        let date = NSDate()
-        let dateFormatter = NSDateFormatter()
+        let date = Date()
+        let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "d MMMM yyyy"
         
-        let today = dateFormatter.stringFromDate(date)
+        let today = dateFormatter.string(from: date)
         
         if groupComment.count != 0 {
             let lastComment = getLastCommentInGroup(groupComment: groupComment)

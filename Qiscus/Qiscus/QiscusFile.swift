@@ -14,76 +14,76 @@ import AVFoundation
 import SwiftyJSON
 
 public enum QFileType:Int {
-    case Media
-    case Document
-    case Video
-    case Audio
-    case Others
+    case media
+    case document
+    case video
+    case audio
+    case others
 }
 
-public class QiscusFile: Object {
-    public dynamic var fileId:Int = 0
-    public dynamic var fileURL:String = ""
-    public dynamic var fileLocalPath:String = ""
-    public dynamic var fileThumbPath:String = ""
-    public dynamic var fileTopicId:Int = 0
-    public dynamic var fileCommentId:Int = 0
-    public dynamic var isDownloading:Bool = false
-    public dynamic var isUploading:Bool = false
-    public dynamic var downloadProgress:CGFloat = 0
-    public dynamic var uploadProgress:CGFloat = 0
-    public dynamic var uploaded = true
-    public dynamic var unusedVar:Bool = false
+open class QiscusFile: Object {
+    open dynamic var fileId:Int = 0
+    open dynamic var fileURL:String = ""
+    open dynamic var fileLocalPath:String = ""
+    open dynamic var fileThumbPath:String = ""
+    open dynamic var fileTopicId:Int = 0
+    open dynamic var fileCommentId:Int = 0
+    open dynamic var isDownloading:Bool = false
+    open dynamic var isUploading:Bool = false
+    open dynamic var downloadProgress:Double = 0
+    open dynamic var uploadProgress:Double = 0
+    open dynamic var uploaded = true
+    open dynamic var unusedVar:Bool = false
     
     var screenWidth:CGFloat{
         get{
-            return UIScreen.mainScreen().bounds.size.width
+            return UIScreen.main.bounds.size.width
         }
     }
     var screenHeight:CGFloat{
         get{
-            return UIScreen.mainScreen().bounds.size.height
+            return UIScreen.main.bounds.size.height
         }
     }
     
-    public var fileExtension:String{
+    open var fileExtension:String{
         get{
             return getExtension()
         }
     }
-    public var fileName:String{
+    open var fileName:String{
         get{
             return getFileName()
         }
     }
-    public var fileType:QFileType{
+    open var fileType:QFileType{
         get {
-            var type:QFileType = QFileType.Others
+            var type:QFileType = QFileType.others
             if isMediaFile() {
-                type = QFileType.Media
+                type = QFileType.media
             } else if isPdfFile() {
-                type = QFileType.Document
+                type = QFileType.document
             } else if isVideoFile() {
-                type = QFileType.Video
+                type = QFileType.video
             } else if isAudioFile() {
-                type = QFileType.Audio
+                type = QFileType.audio
             }
             
             return type
         }
     }
-    public var qiscus:Qiscus{
+    open var qiscus:Qiscus{
         get{
             return Qiscus.sharedInstance
         }
     }
-    override public class func primaryKey() -> String {
+    override open class func primaryKey() -> String {
         return "fileId"
     }
     
-    public class func getLastId() -> Int{
+    open class func getLastId() -> Int{
         let realm = try! Realm()
-        let RetNext = realm.objects(QiscusFile).sorted("fileId")
+        let RetNext = realm.objects(QiscusFile.self).sorted(byProperty: "fileId")
         
         if RetNext.count > 0 {
             let last = RetNext.last!
@@ -92,17 +92,17 @@ public class QiscusFile: Object {
             return 0
         }
     }
-    public class func getCommentFileWithComment(comment: QiscusComment)->QiscusFile?{
+    open class func getCommentFileWithComment(_ comment: QiscusComment)->QiscusFile?{
         let realm = try! Realm()
         var searchQuery = NSPredicate()
         var file:QiscusFile?
         
         searchQuery = NSPredicate(format: "fileId == %d", comment.commentFileId)
-        let fileData = realm.objects(QiscusFile).filter(searchQuery)
+        let fileData = realm.objects(QiscusFile.self).filter(searchQuery)
         
         if(fileData.count == 0){
             searchQuery = NSPredicate(format: "fileCommentId == %d", comment.commentId)
-            let data = realm.objects(QiscusFile).filter(searchQuery)
+            let data = realm.objects(QiscusFile.self).filter(searchQuery)
             if(data.count > 0){
                 file = data.first!
             }
@@ -111,11 +111,11 @@ public class QiscusFile: Object {
         }
         return file
     }
-    public class func getCommentFileWithURL(url: String)->QiscusFile?{
+    open class func getCommentFileWithURL(_ url: String)->QiscusFile?{
         let realm = try! Realm()
         
         let searchQuery:NSPredicate = NSPredicate(format: "fileURL == %@", url)
-        let fileData = realm.objects(QiscusFile).filter(searchQuery)
+        let fileData = realm.objects(QiscusFile.self).filter(searchQuery)
         
         if(fileData.count == 0){
             return nil
@@ -123,11 +123,11 @@ public class QiscusFile: Object {
             return fileData.first!
         }
     }
-    public class func getCommentFile(fileId: Int)->QiscusFile?{
+    open class func getCommentFile(_ fileId: Int)->QiscusFile?{
         let realm = try! Realm()
         
         let searchQuery:NSPredicate = NSPredicate(format: "fileId == %d", fileId)
-        let fileData = realm.objects(QiscusFile).filter(searchQuery)
+        let fileData = realm.objects(QiscusFile.self).filter(searchQuery)
         
         if(fileData.count == 0){
             return nil
@@ -135,11 +135,11 @@ public class QiscusFile: Object {
             return fileData.first!
         }
     }
-    public func saveCommentFile(){
+    open func saveCommentFile(){
         let realm = try! Realm()
         
         let searchQuery:NSPredicate = NSPredicate(format: "fileId == %d", self.fileId)
-        let fileData = realm.objects(QiscusFile).filter(searchQuery)
+        let fileData = realm.objects(QiscusFile.self).filter(searchQuery)
         
         if(self.fileId == 0){
             self.fileId = QiscusFile.getLastId() + 1
@@ -161,11 +161,11 @@ public class QiscusFile: Object {
     }
     
     // MARK: - Setter Methode
-    public func updateURL(url: String){
+    open func updateURL(_ url: String){
         let realm = try! Realm()
         
         let searchQuery:NSPredicate = NSPredicate(format: "fileId == %d", self.fileId)
-        let fileData = realm.objects(QiscusFile).filter(searchQuery)
+        let fileData = realm.objects(QiscusFile.self).filter(searchQuery)
         
         if(fileData.count == 0){
             self.fileURL = url
@@ -176,11 +176,11 @@ public class QiscusFile: Object {
             }
         }
     }
-    public func updateCommentId(commentId: Int){
+    open func updateCommentId(_ commentId: Int){
         let realm = try! Realm()
         
         let searchQuery:NSPredicate = NSPredicate(format: "fileId == %d", self.fileId)
-        let fileData = realm.objects(QiscusFile).filter(searchQuery)
+        let fileData = realm.objects(QiscusFile.self).filter(searchQuery)
         
         if(fileData.count == 0){
             self.fileCommentId = commentId
@@ -191,11 +191,11 @@ public class QiscusFile: Object {
             }
         }
     }
-    public func updateLocalPath(url: String){
+    open func updateLocalPath(_ url: String){
         let realm = try! Realm()
         
         let searchQuery:NSPredicate = NSPredicate(format: "fileId == %d", self.fileId)
-        let fileData = realm.objects(QiscusFile).filter(searchQuery)
+        let fileData = realm.objects(QiscusFile.self).filter(searchQuery)
         
         if(fileData.count == 0){
             self.fileLocalPath = url
@@ -206,11 +206,11 @@ public class QiscusFile: Object {
             }
         }
     }
-    public func updateThumbPath(url: String){
+    open func updateThumbPath(_ url: String){
         let realm = try! Realm()
         
         let searchQuery:NSPredicate = NSPredicate(format: "fileId == %d", self.fileId)
-        let fileData = realm.objects(QiscusFile).filter(searchQuery)
+        let fileData = realm.objects(QiscusFile.self).filter(searchQuery)
         
         if(fileData.count == 0){
             self.fileThumbPath = url
@@ -221,28 +221,28 @@ public class QiscusFile: Object {
             }
         }
     }
-    public func updateIsUploading(uploading: Bool){
+    open func updateIsUploading(_ uploading: Bool){
         let realm = try! Realm()
         
         try! realm.write{
             self.isUploading = uploading
         }
     }
-    public func updateIsDownloading(downloading: Bool){
+    open func updateIsDownloading(_ downloading: Bool){
         let realm = try! Realm()
 
         try! realm.write{
             self.isDownloading = downloading
         }
     }
-    public func updateUploadProgress(progress: CGFloat){
+    open func updateUploadProgress(_ progress: Double){
         let realm = try! Realm()
         
         try! realm.write{
             self.uploadProgress = progress
         }
     }
-    public func updateDownloadProgress(progress: CGFloat){
+    open func updateDownloadProgress(_ progress: Double){
         let realm = try! Realm()
         
         try! realm.write{
@@ -250,35 +250,35 @@ public class QiscusFile: Object {
         }
     }
     // MARK: Additional Methode
-    private func getExtension() -> String{
+    fileprivate func getExtension() -> String{
         var ext = ""
-        if (self.fileName as String).rangeOfString(".") != nil{
-            let fileNameArr = (self.fileName as String).characters.split(".")
-            ext = String(fileNameArr.last!).lowercaseString
+        if (self.fileName as String).range(of: ".") != nil{
+            let fileNameArr = (self.fileName as String).characters.split(separator: ".")
+            ext = String(fileNameArr.last!).lowercased()
         }
         return ext
     }
-    private func getFileName() ->String{
+    fileprivate func getFileName() ->String{
         var fileName = ""
         
         if self.fileLocalPath.characters.count <= 0 {
-            if let mediaURL = NSURL(string: self.fileURL) {
-                if let lastPath = mediaURL.lastPathComponent?.stringByRemovingPercentEncoding {
+            if let mediaURL = URL(string: self.fileURL) {
+                if let lastPath = mediaURL.lastPathComponent.removingPercentEncoding {
                     fileName = lastPath
                 }
             }
-        } else if self.fileLocalPath.rangeOfString("/") == nil {
+        } else if self.fileLocalPath.range(of: "/") == nil {
             fileName = self.fileLocalPath
         } else {
-            if let lastPathSequence = self.fileLocalPath.characters.split("/").last {
+            if let lastPathSequence = self.fileLocalPath.characters.split(separator: "/").last {
                 let lastPath = String(lastPathSequence)
-                fileName = lastPath.stringByReplacingOccurrencesOfString(" ", withString: "_")
+                fileName = lastPath.replacingOccurrences(of: " ", with: "_")
             }
         }
         
         return fileName
     }
-    private func isPdfFile() -> Bool{
+    fileprivate func isPdfFile() -> Bool{
         var check:Bool = false
         let ext = self.getExtension()
         
@@ -288,7 +288,7 @@ public class QiscusFile: Object {
 
         return check
     }
-    private func isVideoFile() -> Bool{
+    fileprivate func isVideoFile() -> Bool{
         var check:Bool = false
         let ext = self.getExtension()
         
@@ -298,7 +298,7 @@ public class QiscusFile: Object {
         
         return check
     }
-    private func isMediaFile() -> Bool{
+    fileprivate func isMediaFile() -> Bool{
         var check:Bool = false
         let ext = self.getExtension()
         
@@ -309,7 +309,7 @@ public class QiscusFile: Object {
         return check
     }
     
-    private func isAudioFile() -> Bool {
+    fileprivate func isAudioFile() -> Bool {
         var check:Bool = false
         let ext = self.getExtension()
         
@@ -321,49 +321,49 @@ public class QiscusFile: Object {
     }
     
     // MARK: - image manipulation
-    public func getLocalThumbImage() -> UIImage{
+    open func getLocalThumbImage() -> UIImage{
         if let image = UIImage(contentsOfFile: (self.fileThumbPath as String)) {
             return image
         }else{
             return UIImage()
         }
     }
-    public func getLocalImage() -> UIImage{
+    open func getLocalImage() -> UIImage{
         if let image = UIImage(contentsOfFile: (self.fileLocalPath as String)) {
             return image
         }else{
             return UIImage()
         }
     }
-    public class func createThumbImage(image:UIImage)->UIImage{
+    open class func createThumbImage(_ image:UIImage)->UIImage{
         var smallPart:CGFloat = image.size.height
         if(image.size.width > image.size.height){
             smallPart = image.size.width
         }
         let ratio:CGFloat = CGFloat(220.0/smallPart)
-        let newSize = CGSizeMake((image.size.width * ratio),(image.size.height * ratio))
+        let newSize = CGSize(width: (image.size.width * ratio),height: (image.size.height * ratio))
         
         UIGraphicsBeginImageContext(newSize)
-        image.drawInRect(CGRectMake(0, 0, newSize.width, newSize.height))
+        image.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
         let newImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
         return newImage!
     }
-    public class func saveFile(fileData: NSData, fileName: String) -> String {
-        let documentsPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
+    open class func saveFile(_ fileData: Data, fileName: String) -> String {
+        let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
         let path = "\(documentsPath)/\(fileName)"
         
-        fileData.writeToFile(path, atomically: true)
+        try? fileData.write(to: URL(fileURLWithPath: path), options: [.atomic])
         
         return path
     }
-    public func isLocalFileExist()->Bool{
+    open func isLocalFileExist()->Bool{
         var check:Bool = false
         
-        let checkValidation = NSFileManager.defaultManager()
+        let checkValidation = FileManager.default
         
-        if (self.fileLocalPath != "" && checkValidation.fileExistsAtPath(self.fileLocalPath as String) && checkValidation.fileExistsAtPath(self.fileThumbPath as String))
+        if (self.fileLocalPath != "" && checkValidation.fileExists(atPath: self.fileLocalPath as String) && checkValidation.fileExists(atPath: self.fileThumbPath as String))
         {
             check = true
         }
