@@ -7,7 +7,7 @@ target 'Example' do
     pod 'AlamofireImage', '~> 3.0'
     pod 'RxSwift', '~> 3.0'
     pod 'PusherSwift', '~> 4.0'
-    pod 'RealmSwift', '~> 2.1'
+    pod 'RealmSwift', '~> 2.0'
     pod 'SwiftyJSON', '~> 3.0'
 
 end
@@ -18,7 +18,7 @@ target 'Qiscus' do
     pod 'Alamofire', '~> 4.0'
     pod 'AlamofireImage', '~> 3.0'
     pod 'PusherSwift', '~> 4.0'
-    pod 'RealmSwift', '~> 2.1'
+    pod 'RealmSwift', '~> 2.0'
     pod 'SwiftyJSON', '~> 3.0'
    
     post_install do |installer|
